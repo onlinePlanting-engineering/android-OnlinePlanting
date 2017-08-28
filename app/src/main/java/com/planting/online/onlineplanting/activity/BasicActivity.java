@@ -1,7 +1,9 @@
-package com.planting.online.onlineplanting;
+package com.planting.online.onlineplanting.activity;
 
 import android.app.Activity;
 import android.os.Bundle;
+
+import com.planting.online.onlineplanting.R;
 
 public class BasicActivity extends Activity {
 

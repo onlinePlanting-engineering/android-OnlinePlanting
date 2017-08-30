@@ -34,6 +34,8 @@ dependencies {
     compile "com.squareup.retrofit2:converter-gson:$retrofit_version"
     compile "com.squareup.retrofit2:adapter-rxjava:$retrofit_version"
 
+    compile "com.squareup.okhttp3:logging-interceptor:$interceptor_version"
+
     //RxJava
     compile "io.reactivex:rxkotlin:$rxkotlin_version"
     compile "io.reactivex:rxandroid:$rxandroid_version"

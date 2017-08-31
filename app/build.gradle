@@ -1,5 +1,12 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
+apply plugin: 'org.greenrobot.greendao'
+
+greendao {
+    schemaVersion 1
+    daoPackage 'com.planting.online.onlineplanting.dao'
+    targetGenDir 'src/main/java'
+}
 
 android {
     compileSdkVersion 26
@@ -39,6 +46,9 @@ dependencies {
     //RxJava
     compile "io.reactivex:rxkotlin:$rxkotlin_version"
     compile "io.reactivex:rxandroid:$rxandroid_version"
+
+    //greendao
+    compile "org.greenrobot:greendao:$greendao_version"
 }
 repositories {
     mavenCentral()

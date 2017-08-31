@@ -3,11 +3,9 @@ package com.planting.online.onlineplanting.networking
 import android.content.Context
 import com.planting.online.onlineplanting.App.PlantingApplication
 import com.planting.online.onlineplanting.Constants.PlantingConstant
-import okhttp3.Cache
-import okhttp3.Interceptor
-import okhttp3.OkHttpClient
-import okhttp3.Response
+import okhttp3.*
 import okhttp3.logging.HttpLoggingInterceptor
+import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
@@ -64,5 +62,10 @@ class PlantingRetrofitManager private constructor(): Interceptor {
 
     override fun intercept(chain: Interceptor.Chain?): Response {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+
+    public fun registerUser(username: String, password: String): Call<ResponseBody>?{
+        return mPlantingServices?.registerUser(username, password)
     }
 }

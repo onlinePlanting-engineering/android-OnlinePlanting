@@ -17,5 +17,5 @@ interface PlantingServices {
 
     @FormUrlEncoded
     @POST("/api/users/register/")
-    fun userRegister(@Field("username") username: String, @Field("password") password: String): Call<ResponseBody>
+    fun registerUser(@Field("username") username: String, @Field("password") password: String): Call<ResponseBody>
 }

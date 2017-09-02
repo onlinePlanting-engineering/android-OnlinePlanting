@@ -1,4 +1,4 @@
-package com.planting.online.onlineplanting.models
+package com.planting.online.onlineplanting.Model
 
 /**
  * Created by eleven on 2017/8/30.

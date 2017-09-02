@@ -1,11 +1,17 @@
 apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
 apply plugin: 'org.greenrobot.greendao'
+apply plugin: 'kotlin-android'
 
 greendao {
     schemaVersion 1
-    daoPackage 'com.planting.online.onlineplanting.dao'
+    daoPackage 'com.planting.online.onlineplanting.Dao'
     targetGenDir 'src/main/java'
+}
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
 }
 
 android {
@@ -32,8 +38,8 @@ dependencies {
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    compile 'com.android.support.constraint:constraint-layout:1.0.2'
-    testCompile 'junit:junit:4.12'
+    testCompile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    testCompile "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
 
     //Retrofit
@@ -48,8 +54,7 @@ dependencies {
     compile "io.reactivex:rxandroid:$rxandroid_version"
 
     //greendao
-    compile "org.greenrobot:greendao:$greendao_version"
-}
-repositories {
-    mavenCentral()
+    compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    compile 'org.greenrobot:greendao:3.2.0'
+    testCompile 'junit:junit:4.12'
 }

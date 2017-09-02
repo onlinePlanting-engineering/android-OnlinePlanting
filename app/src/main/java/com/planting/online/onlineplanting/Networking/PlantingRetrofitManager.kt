@@ -1,15 +1,16 @@
-package com.planting.online.onlineplanting.networking
+package com.planting.online.onlineplanting.Networking
 
 import android.content.Context
-import com.planting.online.onlineplanting.App.PlantingApplication
-import com.planting.online.onlineplanting.Constants.PlantingConstant
-import okhttp3.*
+import com.planting.online.onlineplanting.Constant.PlantingConstant
+import okhttp3.Interceptor
+import okhttp3.OkHttpClient
+import okhttp3.Response
+import okhttp3.ResponseBody
 import okhttp3.logging.HttpLoggingInterceptor
-import retrofit2.Call
+import retrofit2.Callback
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
-import java.io.File
 import java.util.concurrent.TimeUnit
 
 /**
@@ -38,9 +39,7 @@ class PlantingRetrofitManager private constructor(): Interceptor {
         val interceptor = HttpLoggingInterceptor()
         interceptor.level = HttpLoggingInterceptor.Level.BODY
         if (mOkHttpClient == null) {
-            val cache = Cache(File(PlantingApplication.getInstance().cacheDir, "Planting_Cache"), 14 * 1024 * 100)
             mOkHttpClient = OkHttpClient.Builder()
-                    .cache(cache)
                     .retryOnConnectionFailure(true)
                     .addNetworkInterceptor(this)
                     .addInterceptor(this)
@@ -64,8 +63,14 @@ class PlantingRetrofitManager private constructor(): Interceptor {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
+    fun registerUser(username: String, password: String, callback: Callback<ResponseBody>) {
+        val call = mPlantingServices?.registerUser(username, password)
+        call?.enqueue(callback)
+    }
 
-    public fun registerUser(username: String, password: String): Call<ResponseBody>?{
-        return mPlantingServices?.registerUser(username, password)
+    fun loginUser(username: String, password: String, callback: Callback<ResponseBody>) {
+        val call = mPlantingServices?.loginUser(username, password)
+        call?.enqueue(callback)
+
     }
 }

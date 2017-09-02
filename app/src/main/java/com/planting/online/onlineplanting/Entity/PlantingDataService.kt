@@ -36,11 +36,11 @@ class PlantingDataService {
         PlantingRetrofitManager.getInstance().loginUser(username, password, object : Callback<ResponseBody>{
 
             override fun onFailure(call: Call<ResponseBody>?, t: Throwable?) {
-                TODO("not implemented")
+                println("failed")
             }
 
             override fun onResponse(call: Call<ResponseBody>?, response: Response<ResponseBody>?) {
-                TODO("not implemented")
+                println("success")
             }
         })
     }

@@ -15,7 +15,7 @@ class MainActivity : BasicActivity() {
         PlantingDataService.getInstance().loginUser("15869355903","aq1sw2de",object: DataServiceResponse.Listener<Boolean>{
             override fun onResponse(response: Boolean) {
 
-                PlantingDataService.getInstance().getFarmList(object : DataServiceResponse.Listener<Boolean> {
+                PlantingDataService.getInstance().getLandsInforById(1, object : DataServiceResponse.Listener<Boolean> {
                     override fun onResponse(response: Boolean) {
                         LogUtils.d("user",response)
                     }

@@ -9,6 +9,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Response
 import okhttp3.ResponseBody
 import okhttp3.logging.HttpLoggingInterceptor
+import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory
@@ -59,6 +60,15 @@ class PlantingRetrofitManager private constructor(): Interceptor {
                             ?.build())
                 }
             }
+            request?.build()?.url().toString().contains(PlantingWebServiceMapping.CreateComment) -> {
+                val token = SharedPreferencesHelper.getDataString(PlantingApplication.getInstance().getContext(),PlantingConstant.VANTAGE_PREFERENCE,PlantingConstant.TOKEN,null)
+                token.let {
+                    return chain?.proceed(request
+                            ?.addHeader("Authorization","Token $token")
+                            ?.method(original.method(), original.body())
+                            ?.build())
+                }
+            }
             else -> {
                 val token = SharedPreferencesHelper.getDataString(PlantingApplication.getInstance().getContext(),PlantingConstant.VANTAGE_PREFERENCE,PlantingConstant.TOKEN,null)
                 token.let {
@@ -72,7 +82,6 @@ class PlantingRetrofitManager private constructor(): Interceptor {
 
             }
         }
-        return null
     }
 
     private fun getLogInterceptor(): Interceptor {
@@ -120,6 +129,31 @@ class PlantingRetrofitManager private constructor(): Interceptor {
 
     fun getFarmList(callback: Callback<ResponseBody>) {
         val call = mPlantingServices?.getFarmList()
+        call?.enqueue(callback)
+    }
+
+    fun getComments(type: String, id: Long,callback: Callback<ResponseBody>) {
+        val call = mPlantingServices?.getComments(type, id)
+        call?.enqueue(callback)
+    }
+
+    fun getParentComments(id: Long,callback: Callback<ResponseBody>) {
+        val call = mPlantingServices?.getParentComments(id)
+        call?.enqueue(callback)
+    }
+
+    fun createComment(type: String, id: Long, parent_id: Long?, content: String, grade: String, callback: Callback<ResponseBody>) {
+        val call = mPlantingServices?.createComment(type, id, parent_id, content, grade)
+        call?.enqueue(callback)
+    }
+
+    fun getImagesByGroup(id: Long, callback: Callback<ResponseBody>) {
+        val call = mPlantingServices?.getImagesByGroup(id)
+        call?.enqueue(callback)
+    }
+
+    fun getLandsInforById(id: Long, callback: Callback<ResponseBody>) {
+        val call = mPlantingServices?.getLandsInforById(id)
         call?.enqueue(callback)
     }
 }

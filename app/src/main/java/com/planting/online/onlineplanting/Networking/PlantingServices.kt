@@ -36,4 +36,20 @@ interface PlantingServices {
 
     @GET(PlantingWebServiceMapping.GetFarmList)
     fun getFarmList():Call<ResponseBody>
+
+    @GET(PlantingWebServiceMapping.GetComments)
+    fun getComments(@Query("type") type: String, @Query("id") id: Long): Call<ResponseBody>
+
+    @GET(PlantingWebServiceMapping.GetComments + "{id}")
+    fun getParentComments(@Path("id") id: Long): Call<ResponseBody>
+
+    @FormUrlEncoded
+    @POST(PlantingWebServiceMapping.CreateComment)
+    fun createComment(@Query("type") type: String, @Query("id") id: Long,@Query("parent_id") parent_id: Long?, @Field("content") content: String, @Field("grade") grade: String): Call<ResponseBody>
+
+    @GET(PlantingWebServiceMapping.GetImageByGroup + "{id}")
+    fun getImagesByGroup(@Path("id") id: Long): Call<ResponseBody>
+
+    @GET(PlantingWebServiceMapping.GetLandsById + "{id}")
+    fun getLandsInforById(@Path("id") id: Long): Call<ResponseBody>
 }

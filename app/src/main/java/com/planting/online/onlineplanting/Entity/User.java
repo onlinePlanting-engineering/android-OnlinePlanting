@@ -2,6 +2,7 @@ package com.planting.online.onlineplanting.Entity;
 
 import com.planting.online.onlineplanting.Model.Profile;
 
+import org.greenrobot.greendao.annotation.Convert;
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
@@ -20,14 +21,16 @@ public class User {
     @Unique
     private String username;
 
+    @Convert(converter = ProfileConverter.class, columnType = String.class)
     Profile profile;
 
-    @Generated
+    @Generated(hash = 586692638)
     public User() {
     }
 
-    @Generated
-    public User(String username, Profile profile) {
+    @Generated(hash = 903271634)
+    public User(Long id, String username, Profile profile) {
+        this.id = id;
         this.username = username;
         this.profile = profile;
     }

@@ -33,7 +33,7 @@ public class Farm {
     @Convert(converter = CommentConverter.class, columnType = String.class)
     private List<CommentURL> comments;
 
-    @Convert(converter = CommentConverter.LandConverter.class, columnType = String.class)
+    @Convert(converter = LandConverter.class, columnType = String.class)
     private List<LandURL> lands;
 
     @Convert(converter = ImageConverter.class, columnType = String.class)

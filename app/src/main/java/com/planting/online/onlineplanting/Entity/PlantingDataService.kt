@@ -1,6 +1,5 @@
 package com.planting.online.onlineplanting.Entity
 
-import android.util.Log
 import com.planting.online.onlineplanting.App.PlantingApplication
 import com.planting.online.onlineplanting.Constant.PlantingConstant
 import com.planting.online.onlineplanting.Networking.PlantingRetrofitManager
@@ -14,8 +13,6 @@ import com.planting.online.onlineplanting.Utils.SharedPreferencesHelper
 import org.json.JSONException
 import com.google.gson.Gson
 import com.planting.online.onlineplanting.Dao.*
-import java.util.ArrayList
-
 
 /**
  * Created by eleven on 2017/9/1.
@@ -82,6 +79,42 @@ class PlantingDataService {
         mDaoSession?.getFarmDao()?.insertOrReplace(farm)
         return mDaoSession?.getFarmDao()?.queryBuilder()
                 ?.where(FarmDao.Properties.Id.eq(farm.id))
+                ?.build()?.unique()
+    }
+
+    private fun insertOrReplace(comment: Comment?): Comment? {
+        if (comment == null) {
+            return null
+        }
+
+        val comm = mDaoSession?.getCommentDao()?.queryBuilder()
+                ?.where(CommentDao.Properties.Id.eq(comment.id))
+                ?.build()?.unique()
+        if (comm != null) {
+            comment.id = comm?.getId()
+        }
+
+        mDaoSession?.getCommentDao()?.insertOrReplace(comment)
+        return mDaoSession?.getCommentDao()?.queryBuilder()
+                ?.where(CommentDao.Properties.Id.eq(comment.id))
+                ?.build()?.unique()
+    }
+
+    private fun insertOrReplace(imageGroup: ImageGroup?): ImageGroup? {
+        if (imageGroup == null) {
+            return null
+        }
+
+        val i = mDaoSession?.getImageGroupDao()?.queryBuilder()
+                ?.where(ImageGroupDao.Properties.Id.eq(imageGroup.id))
+                ?.build()?.unique()
+        if (i != null) {
+            imageGroup.id = i?.getId()
+        }
+
+        mDaoSession?.getImageGroupDao()?.insertOrReplace(imageGroup)
+        return mDaoSession?.getImageGroupDao()?.queryBuilder()
+                ?.where(ImageGroupDao.Properties.Id.eq(imageGroup.id))
                 ?.build()?.unique()
     }
 
@@ -161,6 +194,134 @@ class PlantingDataService {
                 }catch (e: JSONException) {
                     errorListener.onErrorResponse(e)
                 }
+            }
+        })
+    }
+
+    fun getComments(type: String, id: Long, listener: DataServiceResponse.Listener<Boolean>, errorListener: DataServiceResponse.ErrorListener) {
+        PlantingRetrofitManager.getInstance().getComments(type, id, object : Callback<ResponseBody>{
+
+            override fun onResponse(call: Call<ResponseBody>?, response: Response<ResponseBody>?) {
+                try {
+                    val json = JSONObject(response?.body()?.string())
+                    val commentsArray = json.getJSONArray("data")
+                    for (i in 0..(commentsArray.length() - 1)) {
+                        val comment = commentsArray.getJSONObject(i)
+                        var commentEntity = Gson().fromJson(comment.toString(),Comment::class.java)
+                        insertOrReplace(commentEntity)
+                    }
+                    listener.onResponse(true)
+                }catch (e: JSONException) {
+                    errorListener.onErrorResponse(e)
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseBody>?, t: Throwable?) {
+                println("failed")
+            }
+        })
+    }
+
+    fun getParentComments(id: Long, listener: DataServiceResponse.Listener<Boolean>, errorListener: DataServiceResponse.ErrorListener) {
+        PlantingRetrofitManager.getInstance().getParentComments(id, object : Callback<ResponseBody>{
+
+            override fun onResponse(call: Call<ResponseBody>?, response: Response<ResponseBody>?) {
+                try {
+                    val json = JSONObject(response?.body()?.string())
+                    val replyComments = json.getJSONObject("data")
+                    var commentEntity = Gson().fromJson(replyComments.toString(),Comment::class.java)
+                    insertOrReplace(commentEntity)
+                    listener.onResponse(true)
+                }catch (e: JSONException) {
+                    errorListener.onErrorResponse(e)
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseBody>?, t: Throwable?) {
+                println("failed")
+            }
+        })
+    }
+
+    fun createComment(type: String, id: Long, parent_id: Long?, content: String, grade: String, listener: DataServiceResponse.Listener<Boolean>, errorListener: DataServiceResponse.ErrorListener) {
+        PlantingRetrofitManager.getInstance().createComment(type, id, parent_id, content, grade, object : Callback<ResponseBody>{
+
+            override fun onResponse(call: Call<ResponseBody>?, response: Response<ResponseBody>?) {
+                try {
+                    val json = JSONObject(response?.body()?.string())
+                    if (parent_id == null) {
+                        getComments(type, id, object : DataServiceResponse.Listener<Boolean> {
+
+                            override fun onResponse(response: Boolean) {
+                                listener.onResponse(true)
+                            }
+                        }, object : DataServiceResponse.ErrorListener{
+
+                            override fun onErrorResponse(error: Exception) {
+                                errorListener.onErrorResponse(error)
+                            }
+                        })
+                    } else {
+                        getParentComments(parent_id,object : DataServiceResponse.Listener<Boolean> {
+
+                            override fun onResponse(response: Boolean) {
+                                listener.onResponse(true)
+                            }
+                        }, object : DataServiceResponse.ErrorListener{
+
+                            override fun onErrorResponse(error: Exception) {
+                                errorListener.onErrorResponse(error)
+                            }
+                        })
+                    }
+                }catch (e: JSONException) {
+                    errorListener.onErrorResponse(e)
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseBody>?, t: Throwable?) {
+                println("failed")
+            }
+        })
+    }
+
+    fun getImagesByGroup(id: Long, listener: DataServiceResponse.Listener<Boolean>, errorListener: DataServiceResponse.ErrorListener) {
+        PlantingRetrofitManager.getInstance().getImagesByGroup(id, object : Callback<ResponseBody>{
+
+            override fun onResponse(call: Call<ResponseBody>?, response: Response<ResponseBody>?) {
+                try {
+                    val json = JSONObject(response?.body()?.string())
+                    var imageGroupEntity = Gson().fromJson(json.toString(),ImageGroup::class.java)
+                    insertOrReplace(imageGroupEntity)
+                    listener.onResponse(true)
+                }catch (e: JSONException) {
+                    errorListener.onErrorResponse(e)
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseBody>?, t: Throwable?) {
+                println("failed")
+            }
+        })
+    }
+
+    fun getLandsInforById(id: Long, listener: DataServiceResponse.Listener<Boolean>, errorListener: DataServiceResponse.ErrorListener) {
+        PlantingRetrofitManager.getInstance().getLandsInforById(id, object : Callback<ResponseBody>{
+
+            override fun onResponse(call: Call<ResponseBody>?, response: Response<ResponseBody>?) {
+                try {
+                    val json = JSONObject(response?.body()?.string())
+                    val landData = json.getJSONObject("data")
+                    var landEntity = Gson().fromJson(landData.toString(),Land::class.java)
+                    //var entity = insertOrReplace(imageGroupEntity)
+                    listener.onResponse(true)
+                }catch (e: JSONException) {
+                    errorListener.onErrorResponse(e)
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseBody>?, t: Throwable?) {
+                println("failed")
             }
         })
     }

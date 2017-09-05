@@ -1,17 +1,15 @@
 package com.planting.online.onlineplanting.Dao;
 
-import java.util.List;
-import java.util.ArrayList;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;
 
 import org.greenrobot.greendao.AbstractDao;
 import org.greenrobot.greendao.Property;
-import org.greenrobot.greendao.internal.SqlUtils;
 import org.greenrobot.greendao.internal.DaoConfig;
 import org.greenrobot.greendao.database.Database;
 import org.greenrobot.greendao.database.DatabaseStatement;
 
+import com.planting.online.onlineplanting.Entity.ProfileConverter;
 import com.planting.online.onlineplanting.Model.Profile;
 
 import com.planting.online.onlineplanting.Entity.User;
@@ -31,11 +29,10 @@ public class UserDao extends AbstractDao<User, Long> {
     public static class Properties {
         public final static Property Id = new Property(0, Long.class, "id", true, "_id");
         public final static Property Username = new Property(1, String.class, "username", false, "USERNAME");
-        public final static Property ProfileID = new Property(2, Long.class, "profileID", false, "PROFILE_ID");
+        public final static Property Profile = new Property(2, String.class, "profile", false, "PROFILE");
     }
 
-    private DaoSession daoSession;
-
+    private final ProfileConverter profileConverter = new ProfileConverter();
 
     public UserDao(DaoConfig config) {
         super(config);
@@ -43,7 +40,6 @@ public class UserDao extends AbstractDao<User, Long> {
     
     public UserDao(DaoConfig config, DaoSession daoSession) {
         super(config, daoSession);
-        this.daoSession = daoSession;
     }
 
     /** Creates the underlying database table. */
@@ -52,7 +48,7 @@ public class UserDao extends AbstractDao<User, Long> {
         db.execSQL("CREATE TABLE " + constraint + "\"USER\" (" + //
                 "\"_id\" INTEGER PRIMARY KEY AUTOINCREMENT ," + // 0: id
                 "\"USERNAME\" TEXT UNIQUE ," + // 1: username
-                "\"PROFILE_ID\" INTEGER);"); // 2: profileID
+                "\"PROFILE\" TEXT);"); // 2: profile
     }
 
     /** Drops the underlying database table. */
@@ -75,9 +71,9 @@ public class UserDao extends AbstractDao<User, Long> {
             stmt.bindString(2, username);
         }
  
-        Long profileID = entity.getProfileID();
-        if (profileID != null) {
-            stmt.bindLong(3, profileID);
+        Profile profile = entity.getProfile();
+        if (profile != null) {
+            stmt.bindString(3, profileConverter.convertToDatabaseValue(profile));
         }
     }
 
@@ -95,16 +91,10 @@ public class UserDao extends AbstractDao<User, Long> {
             stmt.bindString(2, username);
         }
  
-        Long profileID = entity.getProfileID();
-        if (profileID != null) {
-            stmt.bindLong(3, profileID);
+        Profile profile = entity.getProfile();
+        if (profile != null) {
+            stmt.bindString(3, profileConverter.convertToDatabaseValue(profile));
         }
-    }
-
-    @Override
-    protected final void attachEntity(User entity) {
-        super.attachEntity(entity);
-        entity.__setDaoSession(daoSession);
     }
 
     @Override
@@ -117,7 +107,7 @@ public class UserDao extends AbstractDao<User, Long> {
         User entity = new User( //
             cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0), // id
             cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1), // username
-            cursor.isNull(offset + 2) ? null : cursor.getLong(offset + 2) // profileID
+            cursor.isNull(offset + 2) ? null : profileConverter.convertToEntityProperty(cursor.getString(offset + 2)) // profile
         );
         return entity;
     }
@@ -126,7 +116,7 @@ public class UserDao extends AbstractDao<User, Long> {
     public void readEntity(Cursor cursor, User entity, int offset) {
         entity.setId(cursor.isNull(offset + 0) ? null : cursor.getLong(offset + 0));
         entity.setUsername(cursor.isNull(offset + 1) ? null : cursor.getString(offset + 1));
-        entity.setProfileID(cursor.isNull(offset + 2) ? null : cursor.getLong(offset + 2));
+        entity.setProfile(cursor.isNull(offset + 2) ? null : profileConverter.convertToEntityProperty(cursor.getString(offset + 2)));
      }
     
     @Override
@@ -154,95 +144,4 @@ public class UserDao extends AbstractDao<User, Long> {
         return true;
     }
     
-    private String selectDeep;
-
-    protected String getSelectDeep() {
-        if (selectDeep == null) {
-            StringBuilder builder = new StringBuilder("SELECT ");
-            SqlUtils.appendColumns(builder, "T", getAllColumns());
-            builder.append(',');
-            SqlUtils.appendColumns(builder, "T0", daoSession.getProfileDao().getAllColumns());
-            builder.append(" FROM USER T");
-            builder.append(" LEFT JOIN PROFILE T0 ON T.\"PROFILE_ID\"=T0.\"_id\"");
-            builder.append(' ');
-            selectDeep = builder.toString();
-        }
-        return selectDeep;
-    }
-    
-    protected User loadCurrentDeep(Cursor cursor, boolean lock) {
-        User entity = loadCurrent(cursor, 0, lock);
-        int offset = getAllColumns().length;
-
-        Profile profile = loadCurrentOther(daoSession.getProfileDao(), cursor, offset);
-        entity.setProfile(profile);
-
-        return entity;    
-    }
-
-    public User loadDeep(Long key) {
-        assertSinglePk();
-        if (key == null) {
-            return null;
-        }
-
-        StringBuilder builder = new StringBuilder(getSelectDeep());
-        builder.append("WHERE ");
-        SqlUtils.appendColumnsEqValue(builder, "T", getPkColumns());
-        String sql = builder.toString();
-        
-        String[] keyArray = new String[] { key.toString() };
-        Cursor cursor = db.rawQuery(sql, keyArray);
-        
-        try {
-            boolean available = cursor.moveToFirst();
-            if (!available) {
-                return null;
-            } else if (!cursor.isLast()) {
-                throw new IllegalStateException("Expected unique result, but count was " + cursor.getCount());
-            }
-            return loadCurrentDeep(cursor, true);
-        } finally {
-            cursor.close();
-        }
-    }
-    
-    /** Reads all available rows from the given cursor and returns a list of new ImageTO objects. */
-    public List<User> loadAllDeepFromCursor(Cursor cursor) {
-        int count = cursor.getCount();
-        List<User> list = new ArrayList<User>(count);
-        
-        if (cursor.moveToFirst()) {
-            if (identityScope != null) {
-                identityScope.lock();
-                identityScope.reserveRoom(count);
-            }
-            try {
-                do {
-                    list.add(loadCurrentDeep(cursor, false));
-                } while (cursor.moveToNext());
-            } finally {
-                if (identityScope != null) {
-                    identityScope.unlock();
-                }
-            }
-        }
-        return list;
-    }
-    
-    protected List<User> loadDeepAllAndCloseCursor(Cursor cursor) {
-        try {
-            return loadAllDeepFromCursor(cursor);
-        } finally {
-            cursor.close();
-        }
-    }
-    
-
-    /** A raw-style query where you can pass any WHERE clause and arguments. */
-    public List<User> queryDeep(String where, String... selectionArg) {
-        Cursor cursor = db.rawQuery(getSelectDeep() + where, selectionArg);
-        return loadDeepAllAndCloseCursor(cursor);
-    }
- 
 }

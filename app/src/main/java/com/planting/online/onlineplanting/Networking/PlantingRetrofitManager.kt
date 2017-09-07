@@ -6,13 +6,10 @@ import com.planting.online.onlineplanting.Constant.PlantingConstant
 import com.planting.online.onlineplanting.Utils.SharedPreferencesHelper
 import okhttp3.*
 import okhttp3.logging.HttpLoggingInterceptor
-import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.http.Part
-import retrofit2.http.Path
 import java.util.concurrent.TimeUnit
 
 
@@ -49,11 +46,10 @@ class PlantingRetrofitManager private constructor(): Interceptor {
                         ?.method(original.method(), original.body())
                         ?.build())
             }
-            request?.build()?.url().toString() == PlantingWebServiceMapping.UpdateUserProfile -> {
+            request?.build()?.url().toString().contains(PlantingWebServiceMapping.UpdateUserProfile) -> {
                 val token = SharedPreferencesHelper.getDataString(PlantingApplication.getInstance().getContext(),PlantingConstant.PLANTING_PREFERENCE,PlantingConstant.TOKEN,null)
                 token.let {
                     return chain?.proceed(request
-                            ?.addHeader("Content-Type", "multipart/form-data")
                             ?.addHeader("Authorization","Token $token")
                             ?.method(original.method(), original.body())
                             ?.build())
@@ -161,8 +157,13 @@ class PlantingRetrofitManager private constructor(): Interceptor {
         call?.enqueue(callback)
     }
 
-    fun updateUserProfile(userId: Long, nickname: RequestBody, addr: RequestBody, gender: RequestBody, username: RequestBody, image: RequestBody, callback: Callback<ResponseBody>) {
+    fun updateUserProfile(userId: Long, nickname: RequestBody, addr: RequestBody, gender: RequestBody, username: RequestBody, image: MultipartBody.Part, callback: Callback<ResponseBody>) {
         val call = mPlantingServices?.updateUserProfile(userId, image, nickname, addr, gender, username)
+        call?.enqueue(callback)
+    }
+
+    fun deleteComment(id: Long, callback: Callback<ResponseBody>) {
+        val call = mPlantingServices?.deleteComment(id)
         call?.enqueue(callback)
     }
 }

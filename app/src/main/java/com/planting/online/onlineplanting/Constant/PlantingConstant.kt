@@ -6,7 +6,7 @@ package com.planting.online.onlineplanting.Constant
 class PlantingConstant {
 
     companion object {
-        val SERVER_BASE_URL = "http://9.115.93.212:8000"
+        val SERVER_BASE_URL = "http://192.168.1.104:8000"
         val TOKEN = "token"
         val PLANTING_PREFERENCE = "planting_preference"
         val HIDE = 0

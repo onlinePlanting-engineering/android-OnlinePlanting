@@ -1,23 +1,29 @@
 package com.planting.online.onlineplanting.Entity
 
+import com.google.gson.Gson
 import com.planting.online.onlineplanting.App.PlantingApplication
 import com.planting.online.onlineplanting.Constant.PlantingConstant
+import com.planting.online.onlineplanting.Dao.*
+import com.planting.online.onlineplanting.Dao.UserDao
 import com.planting.online.onlineplanting.Networking.PlantingRetrofitManager
+import com.planting.online.onlineplanting.Utils.LogUtils
+import com.planting.online.onlineplanting.Utils.SharedPreferencesHelper
+import okhttp3.MediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import okhttp3.ResponseBody
+import org.json.JSONException
 import org.json.JSONObject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import com.planting.online.onlineplanting.Utils.LogUtils
-import com.planting.online.onlineplanting.Utils.SharedPreferencesHelper
-import org.json.JSONException
-import com.google.gson.Gson
-import com.planting.online.onlineplanting.Dao.*
-import okhttp3.MultipartBody
-import okhttp3.RequestBody
-import android.R.attr.password
-import okhttp3.MediaType
 import java.io.File
+
+
+
+
+
+
 
 
 /**
@@ -49,7 +55,25 @@ class PlantingDataService {
         val INSTANCE = PlantingDataService()
     }
 
-    // DB operation
+    //DB operation delete
+
+//    fun <T> deleteObject(deleteObject: T): Boolean {
+//        try {
+//            mDaoSession?.delete(deleteObject)
+//        } catch (e: Exception) {
+//        }
+//
+//        return false
+//    }
+//
+//    fun <T> isExitObject(id: Long, daoObject: Class<T>): Boolean {
+//        val qb = mDaoSession?.getDao(daoObject)?.queryBuilder() as QueryBuilder<T>
+//        qb.where(get.Properties.Id.eq(id))
+//        val length = qb.buildCount().count()
+//        return if (length > 0) true else false
+//    }
+
+    // DB operation insert
     private fun insertOrReplace(user: User?): User? {
         if (user == null) {
             return null
@@ -237,13 +261,15 @@ class PlantingDataService {
     fun updateUserProfile(userId: Long, nickname: String, addr: String, gender: String, username: String, filePath: String, listener: DataServiceResponse.Listener<Boolean>, errorListener: DataServiceResponse.ErrorListener) {
 
         val file = File(filePath)
-        val requestFile = RequestBody.create(MediaType.parse("image/png"), file)
-        val requestNickname = RequestBody.create(MediaType.parse("text/plain"), nickname)
-        val requestAddr = RequestBody.create(MediaType.parse("text/plain"), addr)
-        val requestGender = RequestBody.create(MediaType.parse("text/plain"), gender)
-        val requestUsername = RequestBody.create(MediaType.parse("text/plain"), username)
+        val requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file)
+        val imageBody = MultipartBody.Part.createFormData("profile.img_heading", file.name, requestFile)
 
-        PlantingRetrofitManager.getInstance().updateUserProfile(userId, requestNickname, requestAddr, requestGender, requestUsername, requestFile, object : Callback<ResponseBody>{
+        val requestNickname = RequestBody.create(MediaType.parse("multipart/form-data"), nickname)
+        val requestAddr = RequestBody.create(MediaType.parse("multipart/form-data"), addr)
+        val requestGender = RequestBody.create(MediaType.parse("multipart/form-data"), gender)
+        val requestUsername = RequestBody.create(MediaType.parse("multipart/form-data"), username)
+
+        PlantingRetrofitManager.getInstance().updateUserProfile(userId, requestNickname, requestAddr, requestGender, requestUsername, imageBody, object : Callback<ResponseBody>{
 
             override fun onFailure(call: Call<ResponseBody>?, t: Throwable?) {
                 println("failed")
@@ -300,6 +326,27 @@ class PlantingDataService {
                         var commentEntity = Gson().fromJson(comment.toString(),Comment::class.java)
                         insertOrReplace(commentEntity)
                     }
+                    listener.onResponse(true)
+                }catch (e: JSONException) {
+                    errorListener.onErrorResponse(e)
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseBody>?, t: Throwable?) {
+                println("failed")
+            }
+        })
+    }
+
+    fun deleteComment(id: Long, listener: DataServiceResponse.Listener<Boolean>, errorListener: DataServiceResponse.ErrorListener) {
+        PlantingRetrofitManager.getInstance().deleteComment(id, object : Callback<ResponseBody>{
+
+            override fun onResponse(call: Call<ResponseBody>?, response: Response<ResponseBody>?) {
+                try {
+                    val json = JSONObject(response?.body()?.string())
+                    val replyComments = json.getJSONObject("data")
+                    var commentEntity = Gson().fromJson(replyComments.toString(),Comment::class.java)
+                    insertOrReplace(commentEntity)
                     listener.onResponse(true)
                 }catch (e: JSONException) {
                     errorListener.onErrorResponse(e)

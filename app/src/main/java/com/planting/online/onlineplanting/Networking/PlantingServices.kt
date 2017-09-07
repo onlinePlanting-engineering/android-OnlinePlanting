@@ -1,6 +1,5 @@
 package com.planting.online.onlineplanting.Networking
 
-import android.provider.SyncStateContract
 import com.planting.online.onlineplanting.App.PlantingApplication
 import com.planting.online.onlineplanting.Constant.PlantingConstant
 import com.planting.online.onlineplanting.Utils.SharedPreferencesHelper
@@ -9,7 +8,6 @@ import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.http.*
-import rx.Observable
 
 /**
  * Created by eleven on 2017/8/29.
@@ -45,6 +43,9 @@ interface PlantingServices {
     @GET(PlantingWebServiceMapping.GetComments + "{id}")
     fun getParentComments(@Path("id") id: Long): Call<ResponseBody>
 
+    @DELETE(PlantingWebServiceMapping.GetComments + "{id}/")
+    fun deleteComment(@Path("id") id: Long): Call<ResponseBody>
+
     @FormUrlEncoded
     @POST(PlantingWebServiceMapping.CreateComment)
     fun createComment(@Query("type") type: String, @Query("id") id: Long,@Query("parent_id") parent_id: Long?, @Field("content") content: String, @Field("grade") grade: String): Call<ResponseBody>
@@ -59,6 +60,6 @@ interface PlantingServices {
     fun getSeedCategories(): Call<ResponseBody>
 
     @Multipart
-    @POST(PlantingWebServiceMapping.UpdateUserProfile + "{id}")
-    fun updateUserProfile(@Path("id") userId: Long, @Part("profile.img_heading") image: RequestBody, @Part("profile.nickname") nickname: RequestBody, @Part("profile.addr") addr: RequestBody, @Part("profile.gender") gender: RequestBody, @Part("username") username: RequestBody): Call<ResponseBody>
+    @PUT(PlantingWebServiceMapping.UpdateUserProfile + "{id}/")
+    fun updateUserProfile(@Path("id") userId: Long, @Part image: MultipartBody.Part, @Part("profile.nickname") nickname: RequestBody, @Part("profile.addr") addr: RequestBody, @Part("profile.gender") gender: RequestBody, @Part("username") username: RequestBody): Call<ResponseBody>
 }

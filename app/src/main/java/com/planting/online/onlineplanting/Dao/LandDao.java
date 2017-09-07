@@ -9,8 +9,8 @@ import org.greenrobot.greendao.internal.DaoConfig;
 import org.greenrobot.greendao.database.Database;
 import org.greenrobot.greendao.database.DatabaseStatement;
 
-import com.planting.online.onlineplanting.Entity.CameraConverter;
-import com.planting.online.onlineplanting.Entity.MetaConverter;
+import com.planting.online.onlineplanting.Entity.Converter.CameraConverter;
+import com.planting.online.onlineplanting.Entity.Converter.MetaConverter;
 import java.util.List;
 
 import com.planting.online.onlineplanting.Entity.Land;

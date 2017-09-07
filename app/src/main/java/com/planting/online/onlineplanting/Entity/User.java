@@ -1,6 +1,7 @@
 package com.planting.online.onlineplanting.Entity;
 
-import com.planting.online.onlineplanting.Model.Profile;
+import com.planting.online.onlineplanting.Entity.Converter.ProfileConverter;
+import com.planting.online.onlineplanting.Entity.Data.Profile;
 
 import org.greenrobot.greendao.annotation.Convert;
 import org.greenrobot.greendao.annotation.Entity;

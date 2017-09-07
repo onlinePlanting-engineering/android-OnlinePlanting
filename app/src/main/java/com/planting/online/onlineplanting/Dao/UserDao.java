@@ -9,8 +9,8 @@ import org.greenrobot.greendao.internal.DaoConfig;
 import org.greenrobot.greendao.database.Database;
 import org.greenrobot.greendao.database.DatabaseStatement;
 
-import com.planting.online.onlineplanting.Entity.ProfileConverter;
-import com.planting.online.onlineplanting.Model.Profile;
+import com.planting.online.onlineplanting.Entity.Converter.ProfileConverter;
+import com.planting.online.onlineplanting.Entity.Data.Profile;
 
 import com.planting.online.onlineplanting.Entity.User;
 

@@ -1,8 +1,8 @@
-package com.planting.online.onlineplanting.Entity;
+package com.planting.online.onlineplanting.Entity.Converter;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.planting.online.onlineplanting.Model.Profile;
+import com.planting.online.onlineplanting.Entity.Data.Profile;
 
 import org.greenrobot.greendao.converter.PropertyConverter;
 

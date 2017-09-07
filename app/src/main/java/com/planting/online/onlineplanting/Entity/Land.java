@@ -1,7 +1,9 @@
 package com.planting.online.onlineplanting.Entity;
 
-import com.planting.online.onlineplanting.Model.Camera;
-import com.planting.online.onlineplanting.Model.Meta;
+import com.planting.online.onlineplanting.Entity.Converter.CameraConverter;
+import com.planting.online.onlineplanting.Entity.Converter.MetaConverter;
+import com.planting.online.onlineplanting.Entity.Data.Camera;
+import com.planting.online.onlineplanting.Entity.Data.Meta;
 
 import org.greenrobot.greendao.annotation.Convert;
 import org.greenrobot.greendao.annotation.Entity;

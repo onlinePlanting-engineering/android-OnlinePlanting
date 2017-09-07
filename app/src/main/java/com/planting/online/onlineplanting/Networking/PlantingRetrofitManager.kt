@@ -4,16 +4,15 @@ import android.content.Context
 import com.planting.online.onlineplanting.App.PlantingApplication
 import com.planting.online.onlineplanting.Constant.PlantingConstant
 import com.planting.online.onlineplanting.Utils.SharedPreferencesHelper
-import okhttp3.Interceptor
-import okhttp3.OkHttpClient
-import okhttp3.Response
-import okhttp3.ResponseBody
+import okhttp3.*
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.Part
+import retrofit2.http.Path
 import java.util.concurrent.TimeUnit
 
 
@@ -51,7 +50,7 @@ class PlantingRetrofitManager private constructor(): Interceptor {
                         ?.build())
             }
             request?.build()?.url().toString() == PlantingWebServiceMapping.UpdateUserProfile -> {
-                val token = SharedPreferencesHelper.getDataString(PlantingApplication.getInstance().getContext(),PlantingConstant.VANTAGE_PREFERENCE,PlantingConstant.TOKEN,null)
+                val token = SharedPreferencesHelper.getDataString(PlantingApplication.getInstance().getContext(),PlantingConstant.PLANTING_PREFERENCE,PlantingConstant.TOKEN,null)
                 token.let {
                     return chain?.proceed(request
                             ?.addHeader("Content-Type", "multipart/form-data")
@@ -61,7 +60,7 @@ class PlantingRetrofitManager private constructor(): Interceptor {
                 }
             }
             request?.build()?.url().toString().contains(PlantingWebServiceMapping.CreateComment) -> {
-                val token = SharedPreferencesHelper.getDataString(PlantingApplication.getInstance().getContext(),PlantingConstant.VANTAGE_PREFERENCE,PlantingConstant.TOKEN,null)
+                val token = SharedPreferencesHelper.getDataString(PlantingApplication.getInstance().getContext(),PlantingConstant.PLANTING_PREFERENCE,PlantingConstant.TOKEN,null)
                 token.let {
                     return chain?.proceed(request
                             ?.addHeader("Authorization","Token $token")
@@ -70,7 +69,7 @@ class PlantingRetrofitManager private constructor(): Interceptor {
                 }
             }
             else -> {
-                val token = SharedPreferencesHelper.getDataString(PlantingApplication.getInstance().getContext(),PlantingConstant.VANTAGE_PREFERENCE,PlantingConstant.TOKEN,null)
+                val token = SharedPreferencesHelper.getDataString(PlantingApplication.getInstance().getContext(),PlantingConstant.PLANTING_PREFERENCE,PlantingConstant.TOKEN,null)
                 token.let {
                     return chain?.proceed(request
                             ?.addHeader("Content-Type", "application/json")
@@ -154,6 +153,16 @@ class PlantingRetrofitManager private constructor(): Interceptor {
 
     fun getLandsInforById(id: Long, callback: Callback<ResponseBody>) {
         val call = mPlantingServices?.getLandsInforById(id)
+        call?.enqueue(callback)
+    }
+
+    fun getSeedCategories(callback: Callback<ResponseBody>) {
+        val call = mPlantingServices?.getSeedCategories()
+        call?.enqueue(callback)
+    }
+
+    fun updateUserProfile(userId: Long, nickname: RequestBody, addr: RequestBody, gender: RequestBody, username: RequestBody, image: RequestBody, callback: Callback<ResponseBody>) {
+        val call = mPlantingServices?.updateUserProfile(userId, image, nickname, addr, gender, username)
         call?.enqueue(callback)
     }
 }

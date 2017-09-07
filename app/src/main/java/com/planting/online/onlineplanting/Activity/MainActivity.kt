@@ -1,5 +1,6 @@
 package com.planting.online.onlineplanting.Activity
 
+import android.net.Uri
 import android.os.Bundle
 import com.planting.online.onlineplanting.Entity.DataServiceResponse
 import com.planting.online.onlineplanting.Entity.PlantingDataService
@@ -14,8 +15,9 @@ class MainActivity : BasicActivity() {
 
         PlantingDataService.getInstance().loginUser("15869355903","aq1sw2de",object: DataServiceResponse.Listener<Boolean>{
             override fun onResponse(response: Boolean) {
-
-                PlantingDataService.getInstance().getLandsInforById(1, object : DataServiceResponse.Listener<Boolean> {
+                val path = Uri.parse("file:///android_asset/logo.png")
+                val newPath = path.toString()
+                PlantingDataService.getInstance().updateUserProfile(1, "BlackMamba", "Jia Xing", "S", "15869355903", newPath, object : DataServiceResponse.Listener<Boolean> {
                     override fun onResponse(response: Boolean) {
                         LogUtils.d("user",response)
                     }

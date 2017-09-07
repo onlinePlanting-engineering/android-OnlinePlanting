@@ -1,4 +1,4 @@
-package com.planting.online.onlineplanting.Model
+package com.planting.online.onlineplanting.Entity.Data
 
 import org.greenrobot.greendao.annotation.Entity
 import org.greenrobot.greendao.annotation.Generated

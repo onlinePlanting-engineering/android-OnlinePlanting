@@ -1,6 +1,7 @@
 package com.planting.online.onlineplanting.Entity;
 
-import com.planting.online.onlineplanting.Model.ImageInfor;
+import com.planting.online.onlineplanting.Entity.Converter.ImageGroupConverter;
+import com.planting.online.onlineplanting.Entity.Data.ImageInfor;
 
 import org.greenrobot.greendao.annotation.Convert;
 import org.greenrobot.greendao.annotation.Entity;

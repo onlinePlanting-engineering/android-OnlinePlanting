@@ -26,6 +26,9 @@ public class DaoMaster extends AbstractDaoMaster {
         ImageGroupDao.createTable(db, ifNotExists);
         LandDao.createTable(db, ifNotExists);
         UserDao.createTable(db, ifNotExists);
+        VegetableCategoriesDao.createTable(db, ifNotExists);
+        VegetableMetaDao.createTable(db, ifNotExists);
+        VegetableSubCategoryDao.createTable(db, ifNotExists);
     }
 
     /** Drops underlying database table using DAOs. */
@@ -35,6 +38,9 @@ public class DaoMaster extends AbstractDaoMaster {
         ImageGroupDao.dropTable(db, ifExists);
         LandDao.dropTable(db, ifExists);
         UserDao.dropTable(db, ifExists);
+        VegetableCategoriesDao.dropTable(db, ifExists);
+        VegetableMetaDao.dropTable(db, ifExists);
+        VegetableSubCategoryDao.dropTable(db, ifExists);
     }
 
     /**
@@ -58,6 +64,9 @@ public class DaoMaster extends AbstractDaoMaster {
         registerDaoClass(ImageGroupDao.class);
         registerDaoClass(LandDao.class);
         registerDaoClass(UserDao.class);
+        registerDaoClass(VegetableCategoriesDao.class);
+        registerDaoClass(VegetableMetaDao.class);
+        registerDaoClass(VegetableSubCategoryDao.class);
     }
 
     public DaoSession newSession() {

@@ -1,4 +1,4 @@
-package com.planting.online.onlineplanting.Model
+package com.planting.online.onlineplanting.Entity.Data
 
 import com.planting.online.onlineplanting.Entity.User
 

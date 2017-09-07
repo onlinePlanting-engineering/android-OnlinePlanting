@@ -13,6 +13,12 @@ import com.planting.online.onlineplanting.Utils.SharedPreferencesHelper
 import org.json.JSONException
 import com.google.gson.Gson
 import com.planting.online.onlineplanting.Dao.*
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import android.R.attr.password
+import okhttp3.MediaType
+import java.io.File
+
 
 /**
  * Created by eleven on 2017/9/1.
@@ -118,6 +124,60 @@ class PlantingDataService {
                 ?.build()?.unique()
     }
 
+    private fun insertOrReplace(category: VegetableCategories?): VegetableCategories? {
+        if (category == null) {
+            return null
+        }
+
+        val i = mDaoSession?.getVegetableCategoriesDao()?.queryBuilder()
+                ?.where(VegetableCategoriesDao.Properties.Id.eq(category.id))
+                ?.build()?.unique()
+        if (i != null) {
+            category.id = i?.getId()
+        }
+
+        mDaoSession?.getVegetableCategoriesDao()?.insertOrReplace(category)
+        return mDaoSession?.getVegetableCategoriesDao()?.queryBuilder()
+                ?.where(VegetableCategoriesDao.Properties.Id.eq(category.id))
+                ?.build()?.unique()
+    }
+
+    private fun insertOrReplace(vegeSubCategory: VegetableSubCategory?): VegetableSubCategory? {
+        if (vegeSubCategory == null) {
+            return null
+        }
+
+        val i = mDaoSession?.getVegetableSubCategoryDao()?.queryBuilder()
+                ?.where(VegetableSubCategoryDao.Properties.Id.eq(vegeSubCategory.id))
+                ?.build()?.unique()
+        if (i != null) {
+            vegeSubCategory.id = i?.getId()
+        }
+
+        mDaoSession?.getVegetableSubCategoryDao()?.insertOrReplace(vegeSubCategory)
+        return mDaoSession?.getVegetableSubCategoryDao()?.queryBuilder()
+                ?.where(VegetableSubCategoryDao.Properties.Id.eq(vegeSubCategory.id))
+                ?.build()?.unique()
+    }
+
+    private fun insertOrReplace(vegeMeta: VegetableMeta?): VegetableMeta? {
+        if (vegeMeta == null) {
+            return null
+        }
+
+        val i = mDaoSession?.getVegetableMetaDao()?.queryBuilder()
+                ?.where(VegetableMetaDao.Properties.Id.eq(vegeMeta.id))
+                ?.build()?.unique()
+        if (i != null) {
+            vegeMeta.id = i?.getId()
+        }
+
+        mDaoSession?.getVegetableMetaDao()?.insertOrReplace(vegeMeta)
+        return mDaoSession?.getVegetableMetaDao()?.queryBuilder()
+                ?.where(VegetableMetaDao.Properties.Id.eq(vegeMeta.id))
+                ?.build()?.unique()
+    }
+
     fun registerUser(username: String, password: String, listener: DataServiceResponse.Listener<Boolean>, errorListener: DataServiceResponse.ErrorListener) {
         PlantingRetrofitManager.getInstance().registerUser(username, password, object: Callback<ResponseBody> {
 
@@ -143,7 +203,7 @@ class PlantingDataService {
                     val json = JSONObject(response?.body()?.string())
                     var token = json.getString("token")
                     LogUtils.d("DataService",token)
-                    SharedPreferencesHelper.saveData(PlantingApplication.getInstance().getContext(),PlantingConstant.VANTAGE_PREFERENCE,PlantingConstant.TOKEN,token)
+                    SharedPreferencesHelper.saveData(PlantingApplication.getInstance().getContext(),PlantingConstant.PLANTING_PREFERENCE,PlantingConstant.TOKEN,token)
                     listener.onResponse(true)
                 }catch (e: JSONException) {
                     errorListener.onErrorResponse(e)
@@ -154,6 +214,36 @@ class PlantingDataService {
 
     fun getUserProfile(listener: DataServiceResponse.Listener<Boolean>, errorListener: DataServiceResponse.ErrorListener) {
         PlantingRetrofitManager.getInstance().getUserProfile(object : Callback<ResponseBody>{
+
+            override fun onFailure(call: Call<ResponseBody>?, t: Throwable?) {
+                println("failed")
+            }
+
+            override fun onResponse(call: Call<ResponseBody>?, response: Response<ResponseBody>?) {
+                try {
+                    val gson = Gson()
+                    val json = JSONObject(response?.body()?.string())
+                    val data = json.getJSONObject("data")
+                    var user = gson.fromJson(data.toString(),User::class.java)
+                    insertOrReplace(user)
+                    listener.onResponse(true)
+                }catch (e: JSONException) {
+                    errorListener.onErrorResponse(e)
+                }
+            }
+        })
+    }
+
+    fun updateUserProfile(userId: Long, nickname: String, addr: String, gender: String, username: String, filePath: String, listener: DataServiceResponse.Listener<Boolean>, errorListener: DataServiceResponse.ErrorListener) {
+
+        val file = File(filePath)
+        val requestFile = RequestBody.create(MediaType.parse("image/png"), file)
+        val requestNickname = RequestBody.create(MediaType.parse("text/plain"), nickname)
+        val requestAddr = RequestBody.create(MediaType.parse("text/plain"), addr)
+        val requestGender = RequestBody.create(MediaType.parse("text/plain"), gender)
+        val requestUsername = RequestBody.create(MediaType.parse("text/plain"), username)
+
+        PlantingRetrofitManager.getInstance().updateUserProfile(userId, requestNickname, requestAddr, requestGender, requestUsername, requestFile, object : Callback<ResponseBody>{
 
             override fun onFailure(call: Call<ResponseBody>?, t: Throwable?) {
                 println("failed")
@@ -314,6 +404,38 @@ class PlantingDataService {
                     val landData = json.getJSONObject("data")
                     var landEntity = Gson().fromJson(landData.toString(),Land::class.java)
                     //var entity = insertOrReplace(imageGroupEntity)
+                    listener.onResponse(true)
+                }catch (e: JSONException) {
+                    errorListener.onErrorResponse(e)
+                }
+            }
+
+            override fun onFailure(call: Call<ResponseBody>?, t: Throwable?) {
+                println("failed")
+            }
+        })
+    }
+
+    fun getSeedCategories(listener: DataServiceResponse.Listener<Boolean>, errorListener: DataServiceResponse.ErrorListener) {
+        PlantingRetrofitManager.getInstance().getSeedCategories(object : Callback<ResponseBody>{
+
+            override fun onResponse(call: Call<ResponseBody>?, response: Response<ResponseBody>?) {
+                try {
+                    val json = JSONObject(response?.body()?.string())
+                    val vegeCategoryDataArray = json.getJSONArray("data")
+                    for (i in 0..(vegeCategoryDataArray.length() - 1)) {
+                        val category = vegeCategoryDataArray.getJSONObject(i)
+                        var categoryEntity = Gson().fromJson(category.toString(),VegetableCategories::class.java)
+                        insertOrReplace(categoryEntity)
+                        val vegetables = categoryEntity.vegetables
+                        for (vegetable in vegetables) {
+                            insertOrReplace(vegetable)
+                            val vegeMetas = vegetable.vegmetas
+                            for (meta in vegeMetas) {
+                                insertOrReplace(meta)
+                            }
+                        }
+                    }
                     listener.onResponse(true)
                 }catch (e: JSONException) {
                     errorListener.onErrorResponse(e)

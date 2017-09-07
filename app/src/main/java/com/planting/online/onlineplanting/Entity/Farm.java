@@ -1,8 +1,11 @@
 package com.planting.online.onlineplanting.Entity;
 
-import com.planting.online.onlineplanting.Model.CommentURL;
-import com.planting.online.onlineplanting.Model.ImageURL;
-import com.planting.online.onlineplanting.Model.LandURL;
+import com.planting.online.onlineplanting.Entity.Converter.CommentConverter;
+import com.planting.online.onlineplanting.Entity.Converter.ImageConverter;
+import com.planting.online.onlineplanting.Entity.Converter.LandConverter;
+import com.planting.online.onlineplanting.Entity.Data.CommentURL;
+import com.planting.online.onlineplanting.Entity.Data.ImageURL;
+import com.planting.online.onlineplanting.Entity.Data.LandURL;
 
 import org.greenrobot.greendao.annotation.Convert;
 import org.greenrobot.greendao.annotation.Entity;

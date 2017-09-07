@@ -1,5 +1,8 @@
 package com.planting.online.onlineplanting.Entity;
 
+import com.planting.online.onlineplanting.Entity.Converter.CommentContentConverter;
+import com.planting.online.onlineplanting.Entity.Converter.UserConverter;
+
 import org.greenrobot.greendao.annotation.Convert;
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Generated;

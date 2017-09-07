@@ -1,4 +1,4 @@
-package com.planting.online.onlineplanting.Model
+package com.planting.online.onlineplanting.Entity.Data
 
 /**
  * Created by ibm on 05/09/2017.
